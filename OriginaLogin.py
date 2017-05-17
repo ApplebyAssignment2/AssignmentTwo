@@ -9,7 +9,7 @@ import os
 programName = "Project Mercury"
 
 #Target location of connection
-host = '10.10.19.162'
+host = '10.10.19.21'
 port = 30000
 buffer = 1024
 #The main Client class
@@ -202,7 +202,8 @@ class Client():
         self.finalCreation = self.finalUsername + self.finalPassword + self.finalEmail
 
         self.server.send(self.finalCreation.encode('utf-8'))
-        self.saveInfor()
+        
+
 
 
     #Function the begins connection with the server
@@ -212,7 +213,6 @@ class Client():
         self.server.connect((host, port))
 
 
-       # client = self.server.accept()
 
     def sendinfo(self):
         self.username = "@"+self.usernameEntry.get()
@@ -258,115 +258,45 @@ class Client():
     def TestGet(self):
          print("Thread has started")
          while 1:
-            print("Running")
-            data = self.server.recv(buffer)
-            print("Got it")
-            if data.decode('utf-8') != '':
-                print(data.decode('utf-8'))
-
-                #if self.Window.focus_get() == None:
-            else:
-                print(data.decode('utf-8'))
-"""
-# Events that occur when a message is sent and when a message is being loaded
-
-    These two functions essentially update the message box when a new message comes in, it
-    updates the message box when a user sends a message, prevents the user from being able to type in the 
-    message box.
-    def PressAction(self, event):
-        self.EntryBox.config(state=NORMAL)
-        self.ClickAction()
-
-    def DisableEntry(self,event):
-        self.EntryBox.config(state=DISABLED)
-
-    def FilteredMessage(self):
-    
-        Filter out all useless white lines at the end of a string,
-        returns a new, beautifully filtered string.
-        
-        EndFiltered = ''
-        for i in range(len(self.EntryText) - 1, -1, -1):
-            if self.EntryText[i] != '\n':
-                EndFiltered = self.EntryText[0:i + 1]
-                break
-        for i in range(0, len(EndFiltered), 1):
-            if EndFiltered[i] != "\n":
-                return EndFiltered[i:] + '\n'
-        return ''
-
-
-    def LoadMyEntry(self):
-        if self.EntryText != '':
-            self.ChatLog.config(state=NORMAL)
-            if self.ChatLog.index('end') != None:
-                LineNumber = float(self.ChatLog.index('end')) - 1.0
-                self.ChatLog.insert(END, "You: " + self.EntryText)
-                self.ChatLog.tag_add("You", LineNumber, LineNumber + 0.4)
-                self.ChatLog.tag_config("You", foreground="#FF8000", font=("Arial", 12, "bold"))
-                self.ChatLog.config(state=DISABLED)
-                self.ChatLog.yview(END)
-
-    def LoadOtherEntry(self):
-        if self.EntryText != '':
-            self.ChatLog.config(state=NORMAL)
-            if self.ChatLog.index('end') != None:
-                try:
-                    self.LineNumber = float(self.ChatLog.index('end')) - 1.0
-                except:
-                    pass
-                self.ChatLog.insert(END, "Other: " + self.EntryText)
-                self.ChatLog.tag_add("Other", self.LineNumber, self.LineNumber + 0.6)
-                self.ChatLog.tag_config("Other", foreground="#04B404", font=("Arial", 12, "bold"))
-                self.ChatLog.config(state=DISABLED)
-                self.ChatLog.yview(END)
-
-    #Functions that takes messages and sends them to server.
-    def ClickAction(self):
-        #Write message to chat window
-        self.EntryText = self.EntryText.get()
-        self.EntryText = self.FilteredMessage()
-        self.LoadMyEntry()
-
-        #Scroll to the bottom of chat windows
-        self.ChatLog.yview(END)
-
-        #Erase previous message in Entry Box
-        self.EntryBox.delete("0.0",END)
+            #print("Running")
+            self.data = self.server.recv(buffer).decode('utf-8')
+            #print("Got it")
+            if self.data != '':
+                if self.data == "LoginIsGood":
+                    self.chatWindow()
+                if self.data == "LoginIsBad":
+                    self.loginScreen()
+                if self.data == "CreationIsGood":
+                    self.login()
             
-        #Send my mesage to all others
-        self.server.send(self.EntryText.encode('utf-8'))
+            else:
+                print(self.data.decode('utf-8'))
 
 
     def chatWindow(self):
-        
-        # Creates the window
+       # self.saveInfor()
         self.Window = Tk()
-        _thread.start_new_thread(self.getMessages, ())
 
-        # Window and size
         self.Window.geometry("400x500")
-        self.Window.title(programName)
-
 
         #Chat Log
         self.ChatLog = Text(self.Window, bd=0, bg="white", height="8", width="50", font="Arial",)
         self.ChatLog.insert(END, "Connecting to your partner..\n")
         self.ChatLog.config(state=DISABLED)
-        
+
         #Scroll Bar
         self.scrollbar = Scrollbar(self.Window, command=self.ChatLog.yview, cursor="heart")
         self.ChatLog['yscrollcommand'] = self.scrollbar.set
 
-        #Send 
+        #Send
         self.SendButton = Button(self.Window, font=30, text="Send", width="12", height=5,
                     bd=0, bg="#FFBF00", activebackground="#FACC2E",
                     command=self.ClickAction)
 
         #Entry Box where messages are typed
-        self.EntryBox = Text(self.Window, bd=0, bg="white",width="29", height="5", font="Arial")
-        self.EntryBox.bind("<Return>", self.DisableEntry)
-        self.EntryBox.bind("<KeyRelease-Return>", self.PressAction)
+        self.EntryBox = Text(self.Window, bd=0, bg="white",height="8", width="50", font="Arial")
+        self.EntryBox.bind("<Return>",self.DisableEntry)
+        self.EntryBox.bind("<KeyRelease-Return>",self.PressAction)
 
         #Placing on screen
         self.scrollbar.place(x=376,y=6, height=386)
@@ -374,40 +304,34 @@ class Client():
         self.EntryBox.place(x=128, y=401, height=90, width=265)
         self.SendButton.place(x=6, y=401, height=90)
 
-
-        #Window loop
         self.Window.mainloop()
-    def LoadConnectionInfo(self):
-        if self.EntryText != '':
-            self.ChatLog.config(state = NORMAL)
-            if self.ChatLog.index('end') !=None:
-                self.ChatLog.insert(END, self.EntryText + '\n')
-                self.ChatLog.config(state=DISABLED)
-                self.ChatLog.yview(END)
 
-    def getMessages(self):
-        self.EntryText = '[ Succesfully connected ]\n---------------------------------------------------------------'
-        self.LoadConnectionInfo()
+    def ClickAction(self):
+        self.toPlace = self.EntryBox.get('1.0',END)
+        # print(self.toPlace)
+        self.ChatLog.config(state=NORMAL)
+        self.ChatLog.insert(END,"\n"+"You: "+self.toPlace)
+        self.ChatLog.config(state=DISABLED)
+        self.ChatLog.yview(END)
+        self.EntryBox.delete("0.0", END)
 
-        while 1:
-            try:
-                data = self.server.recv(buffer)
-            except:
-                self.EntryText = "\n [ Your partner has disconnected ] \n"
-                self.LoadConnectionInfo()
-                break
-            if data != '':
-                self.LoadOtherEntry()
-                #if self.Window.focus_get() == None:
-            else:
-                self.EntryText = "\n [ Your partner has disconnected ] \n"
-                self.LoadConnectionInfo()
-                break
+#        self.server.send(self.EntryText.encode('utf-8'))
+    
 
+    def DisableEntry(self,string):
+        self.EntryBox.config(state=DISABLED)
+    
 
+    def PressAction(self,string):
+        self.EntryBox.config(state=NORMAL)
+        self.ClickAction()
 
-"""
 
 Client().__init__()
 
+"""
+
+
+
 #_thread.start_new_thread(Client, args)
+"""

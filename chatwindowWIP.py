@@ -53,5 +53,7 @@ class Client():
         self.EntryBox.config(state=NORMAL)
         self.ClickAction()
 
+        
+
 
 Client().chatWindow()
