@@ -1,10 +1,14 @@
 #Import statements
 import socket
 import _thread
+import datetime
+
+#configuring time settings
+now = datetime.datetime.now()
 
 #opening the accounts file so that it can be read
 accountsFile=open('accounts.txt','r')
-
+logFile=open('connectionLogs.txt','w')
 
 #Setup Variables
 IP = "192.168.2.76"
@@ -30,6 +34,7 @@ def waitForClient():
     s.listen(5)
     conn, addr = s.accept()
 
+    logFile.write("["+now.strftime("%Y-%m-%d %H:%M")+"] Connection from",addr)
     #making a new thread so that the program can keep searching for new connections
     #_thread.start_new_thread(passwordVerification(),args=(conn,addr))
 
@@ -42,12 +47,13 @@ def passwordVerification(conn,addr):
     while True:
         # waiting for the client to send the username and password
         jumble = conn.recv(Buffer)
+
         
         #seperating the variable sent by the client into a username and a password variable
         
         jumble=str(jumble)
         print(jumble)
-        newJumble=jumble[3:len(jumble)]
+        newJumble=jumble[2:len(jumble)]
         
         for i in range(0,len(newJumble),1):
             #the $ sign means that it is the password. Therefore whatever is before it is the username
@@ -70,85 +76,94 @@ def passwordVerification(conn,addr):
             pass
 
         #checking if a password has been sent by seeing if it has the '@' sign
-        if password[0]!='@':
+        if password[0]!='$':
             clientErrorMessage == "notExpectedPassword"
 
             # sending an error message to the client letting them know why they have been denied access to the chat systems
             conn.send(clientErrorMessage.encode('utf-8'))
             pass
 
-        if username[0]=='@' and password[0]== '@':
+        if username[0]=='@' and password[0]== '$':
             # if both a username and a password has been sent to the server than it will continue with the verification process
             #this will break out of the while loop
+            # this is for debugging purposes
+
+            print("The user who is trying to connect:", username)
+            print("The password they have entered:", password)
+
             break
 
 
-        #this is for debugging purposes
-
-        print("The user who is trying to connect:",username)
-        print("The password they have entered:",password)
 
 
-        #we will now call up our username and password dictionairy to verify the users credidentials
 
-        #first, we are checking if the username that the client entered is even in our database
-        #reading the file and making its contents into a variable so that we can proccess it
+    #we will now call up our username and password dictionairy to verify the users credidentials
 
-        accountsContent = accountsFile.read()
-        accountsUsername=None
-        realPassword=""
+    #first, we are checking if the username that the client entered is even in our database
+    #reading the file and making its contents into a variable so that we can proccess it
 
-        for i in range(0,len(accountsContent),1):
-            if accountsContent[i]=='@':
-                start=i
-            elif accountsContent[i]=='$':
-                end=i
-                accountsUsername=accountsContent[start:end]
+    accountsContent = accountsFile.read()
+    accountsUsername=None
+    realPassword=""
 
-                if accountsUsername==username:
-                    for i in range(end,len(accountsContent),1):
-                        if accountsContent[i]=='@':
-                            realPassword==accountsContent[end:i]
-                            break
-                    break
+    for i in range(0, len(accountsContent), 1):
+        if accountsContent[i] == '@':
+            start = i
+            print('start', start)
+        elif accountsContent[i] == '$':
+            end = i
+            print('end', end)
+            accountsUsername = accountsContent[start:end]
 
-        if username!=None:
+            print(accountsUsername)
+
+            if accountsUsername == username:
+                for i in range(end, len(accountsContent), 1):
+                    if accountsContent[i] == '@':
+                        realPassword = accountsContent[end:(i - 1)]
+                        print(realPassword)
+                        break
+
+    print('username:', username)
+    print('password entered:', password)
+    print('actual pass', realPassword)
+
+    if accountsUsername!=None:
 
 
-            #if the password is correct, then a message is said to the client and the user is allowed to start sending messages
-            if password==realPassword:
-                sucessfulLogin=True
-                clientSuccessMessage=('passwordVerSucessful')
-                conn.send(clientSuccessMessage.encode('utf-8'))
+        #if the password is correct, then a message is said to the client and the user is allowed to start sending messages
+        if password==realPassword:
+            sucessfulLogin=True
+            clientSuccessMessage=('passwordVerSucessful')
+            conn.send(clientSuccessMessage.encode('utf-8'))
 
-                #calling the main menu function
-                Messages(Buffer,conn,addr)
+            #calling the main menu function
+            Messages(Buffer,conn,addr)
 
 
-            #if the password is incorrect, then the login process starts again
-            else:
-                clientErrorMessage == "notCorrectPassword"
-
-                # sending an error message to the client letting them know why they have been denied access to the chat systems
-                conn.send(clientErrorMessage.encode('utf-8'))
-
-        #if the username isnt even in the directory, then the server lets the client know
+        #if the password is incorrect, then the login process starts again
         else:
-            clientErrorMessage == "notExpectedUsername"
+            clientErrorMessage == "notCorrectPassword"
 
             # sending an error message to the client letting them know why they have been denied access to the chat systems
             conn.send(clientErrorMessage.encode('utf-8'))
 
-            #restarting the password verification function so that the user will be allowed to re-enter their credidentials
-            passwordVerification()
+            passwordVerification(conn,addr)
+
+    #if the username isnt even in the directory, then the server lets the client know
+    else:
+        clientErrorMessage == "notExpectedUsername"
+
+        # sending an error message to the client letting them know why they have been denied access to the chat systems
+        conn.send(clientErrorMessage.encode('utf-8'))
+
+        #restarting the password verification function so that the user will be allowed to re-enter their credidentials
+        passwordVerification()
 
 
 #this function triggers the main menu where the user will be allowed to do a variety of actions
 def main():
     None
-
-
-
 
 
 #Function for receiving messages from client
@@ -167,14 +182,13 @@ def Messages(Buffer,conn,addr):
             print("Data:", message)
 
         data = input(">>>")
-        c.send(data.encode('utf-8'))
+        conn.send(data.encode('utf-8'))
 
 #Introduction to threading, still learning about this
-_thread.start_new_thread(waitForClient())
+#_thread.start_new_thread(waitForClient())
 
 #Runs the program
-while 1:
-    pass
+waitForClient()
 
 
 """

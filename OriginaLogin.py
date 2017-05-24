@@ -1,3 +1,4 @@
+
 #Import Statements
 from tkinter import * #Tkinter for GUI
 import socket #Sockets used for networking aspect of assignment
@@ -338,4 +339,5 @@ Client().__init__()
 
 
 #_thread.start_new_thread(Client, args)
+
 """
