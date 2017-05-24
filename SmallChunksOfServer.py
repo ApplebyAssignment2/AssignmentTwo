@@ -11,7 +11,8 @@ class Server():
 		print("Connection has been made.")
 		self.waitForLogin()
 
-
+	def createOnlineList(self):
+		self.onlineList = []
 
 	def waitForLogin(self):
 		self.loginstuff = conn.recv(buffer).decode('utf-8')
@@ -32,10 +33,9 @@ class Server():
 			for line in openfile:
 				if self.tocheck in line:
 					conn.send("LoginIsGood".encode('utf-8'))
-
 				else:
 					conn.send("LoginIsBad".encode('utf-8'))
-					self.waitForLogin
+					self.waitForLogin()
 
 
 	def createNewLogin(self):
@@ -47,20 +47,27 @@ class Server():
 		self.usernameCreate = self.loginstuff[1:self.passwordpoint]
 		self.passwordCreate = self.loginstuff[self.passwordpoint+1:self.emailpoint]
 		self.emailCreate = self.loginstuff[self.emailpoint+1:]
-		print(self.usernameCreate,self.passwordCreate,self.emailCreate)
 		with open ("accounts.txt","a") as openfile:
 			openfile.write("\n"+self.usernameCreate+self.passwordCreate)
 			openfile.close()
 		with open ("emails.txt","a") as emailfile:
 			emailfile.write("\n"+self.usernameCreate+self.emailCreate)
 			emailfile.close()
+		conn.send("CreationIsGood")
+		self.waitForLogin()
+	def onlineListFunc(self):
+		conn.send("Online:"+self.onlineList)
+
 	def messageHandling(self):
-		print()
+		while True:
+			self.data = conn.recv(buffer).decode('utf-8')
+			print(self.data)
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((IP,port))
 s.listen(5)
 
-while 1:
+while True:
 	conn, addr = s.accept()
+	Server().createOnlineList()
 	_start_new_thread(Server().__init__,())

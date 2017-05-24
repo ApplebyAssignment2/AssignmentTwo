@@ -1,0 +1,4 @@
+1. message handling - riaz 
+2. Online list - riaz
+4.  Testing with server - 
+5. Commenting - 

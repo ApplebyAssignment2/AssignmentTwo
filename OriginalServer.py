@@ -1,11 +1,13 @@
 #Import statements
 import socket
 import _thread
-import usernamePasswordDirectory
+
+#opening the accounts file so that it can be read
+accountsFile=open('accounts.txt','r')
 
 
 #Setup Variables
-IP = "10.10.18.223"
+IP = "192.168.2.76"
 port = 30000
 Buffer = 1024
 applicationName= "Assignment 2"
@@ -19,17 +21,22 @@ password= ""
 sucessfulLogin= False
 
 
-#Beginning search for clients
-print("Looking for Connections...")
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((IP,port))
-s.listen(5)
-conn, addr = s.accept()
-connection=True
 
+def waitForClient():
+    #Beginning search for clients
+    print("Looking for Connections...")
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((IP,port))
+    s.listen(5)
+    conn, addr = s.accept()
+
+    #making a new thread so that the program can keep searching for new connections
+    #_thread.start_new_thread(passwordVerification(),args=(conn,addr))
+
+    passwordVerification(conn,addr)
 
 #this function will authenticate the username and password of the user
-def passwordVerification():
+def passwordVerification(conn,addr):
 
     #waiting for the password to be sent
     while True:
@@ -39,13 +46,15 @@ def passwordVerification():
         #seperating the variable sent by the client into a username and a password variable
         
         jumble=str(jumble)
+        print(jumble)
         newJumble=jumble[3:len(jumble)]
         
         for i in range(0,len(newJumble),1):
             #the $ sign means that it is the password. Therefore whatever is before it is the username
             if newJumble[i]=='$':
-                username=newJumble[0:i-1]
-                password=newJumble[i:len(newJumble-1)]
+                username=newJumble[0:i]
+                password=newJumble[i:len(newJumble)-1]
+
                
         print (username)
         print (password)
@@ -83,11 +92,28 @@ def passwordVerification():
         #we will now call up our username and password dictionairy to verify the users credidentials
 
         #first, we are checking if the username that the client entered is even in our database
+        #reading the file and making its contents into a variable so that we can proccess it
 
-        if username in usernamePasswordDirectory.userPassList:
-            #if the username is in the directory, then we retrieve the actual user's real password and we compare it to
-            #the password provided by the client
-            realPassword = usernamePasswordDirectory.userPassList[username]
+        accountsContent = accountsFile.read()
+        accountsUsername=None
+        realPassword=""
+
+        for i in range(0,len(accountsContent),1):
+            if accountsContent[i]=='@':
+                start=i
+            elif accountsContent[i]=='$':
+                end=i
+                accountsUsername=accountsContent[start:end]
+
+                if accountsUsername==username:
+                    for i in range(end,len(accountsContent),1):
+                        if accountsContent[i]=='@':
+                            realPassword==accountsContent[end:i]
+                            break
+                    break
+
+        if username!=None:
+
 
             #if the password is correct, then a message is said to the client and the user is allowed to start sending messages
             if password==realPassword:
@@ -96,7 +122,7 @@ def passwordVerification():
                 conn.send(clientSuccessMessage.encode('utf-8'))
 
                 #calling the main menu function
-                main()
+                Messages(Buffer,conn,addr)
 
 
             #if the password is incorrect, then the login process starts again
@@ -126,7 +152,7 @@ def main():
 
 
 #Function for receiving messages from client
-def Messages(Buffer):
+def Messages(Buffer,conn,addr):
     #Prints the connecting address, of the client
     print("Connection Address: ",addr)
     while True:
@@ -144,7 +170,7 @@ def Messages(Buffer):
         c.send(data.encode('utf-8'))
 
 #Introduction to threading, still learning about this
-_thread.start_new_thread(Messages ,(Buffer, ))
+_thread.start_new_thread(waitForClient())
 
 #Runs the program
 while 1:
