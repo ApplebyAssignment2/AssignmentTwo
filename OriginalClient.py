@@ -1,10 +1,10 @@
 #Import statements
 import socket
 # Setup Variables
-Message = 'h'
+Message = ''
 #IP & Port the client is connecting to
-IP = '10.10.18.234'
-Port = 443
+IP = '192.168.2.76'
+Port = 30000
 Buffer = 1024
 
 #Makes the connection
@@ -15,3 +15,7 @@ s.connect((IP,Port))
 while Message != '':
     Message = input("enter text: ")
     s.send(Message.encode('utf-8'))
+    data=s.recv()
+    message = data.decode('utf-8')
+    print(message)
+

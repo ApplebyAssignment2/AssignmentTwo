@@ -32,8 +32,8 @@ def GUI():
                 userLabelList.append(Label(self, bd=0,font="Arial",text=userlist[i]))
                 userLabelList[i].grid(row=i+1,column=1, sticky= W)
 
-                userButtonList.append(Button(self, text="Connect", command=lambda:self.buttonCallBack))
-                userButtonList[i].bind(userLabelList[i])
+                var = (Button(self, text="Connect", command=lambda: self.buttonCallBack))
+                userButtonList.append(var)
                 userButtonList[i].grid(row=i+1, column=4, columnspan=1, sticky=W)
 
             #command=lambda:self.connect()
@@ -59,6 +59,19 @@ def GUI():
             print(text_at_row_col)
 
         def connect(self,user):
+            """
+            s.send(user.encode('utf-8'))
+            connectionIP= s.recv(Buffer)
+            connectionIP=connectionIP.decode('utf-8')
+
+
+            z=socket.socket()
+            z.connect((host,port))
+
+            @(#$%^&%$##$%^&
+            function to open the chat window
+            """
+
             #open the chat window
             print(user)
             app.destroy()
