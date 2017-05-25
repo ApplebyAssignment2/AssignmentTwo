@@ -24,7 +24,7 @@ def GUI():
             self.user1=Label(self, bd=0,font="Arial",text="hey")
             self.user1.grid(row=1, column=1, sticky= W)
 
-            userlist=['riaz','matt','james','richard']
+            userlist=['james','richard']
             userLabelList=[]
             userButtonList=[]
 
@@ -32,7 +32,7 @@ def GUI():
                 userLabelList.append(Label(self, bd=0,font="Arial",text=userlist[i]))
                 userLabelList[i].grid(row=i+1,column=1, sticky= W)
 
-                var = (Button(self, text="Connect", command=lambda: self.buttonCallBack))
+                var = (Button(self, text="Connect", command=lambda: self.buttonCallBack()))
                 userButtonList.append(var)
                 userButtonList[i].grid(row=i+1, column=4, columnspan=1, sticky=W)
 

@@ -64,6 +64,24 @@ class Server():
 			self.data = conn.recv(buffer).decode('utf-8')
 			print(self.data)
 
+	def waitForMessages(self,conn, addr, Buffer):
+		data = None
+
+		while True:
+			self.data = s.recv(Buffer)
+			# Decodes the encrypted data
+			self.message = data.decode('utf-8')
+			sendToUserIP = findIP(self.message)
+			conn.send(sendToUserIP.encode('utf-8'))
+
+	def findIP(self,username):
+		for i in range(0, len(usersList), 1):
+			check = usersList[i]
+			usernameToCheck = check[0]
+			if usernameToCheck == username:
+				return check[1]
+
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((IP,port))
 s.listen(5)
