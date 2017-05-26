@@ -52,6 +52,9 @@ class Server():
 				if self.tocheck in line:
 					conn.send("LoginIsGood".encode('utf-8'))
 					self.onlineList.append([self.username,addr])
+					for i in range(0,len(self.onlineList),1):
+						self.toSend = self.onlineList[i]
+						conn.send(self.toSend[1].encode('utf-8'))
 					self.waitForMessages()
 				else:
 					conn.send("LoginIsBad".encode('utf-8'))
@@ -75,6 +78,7 @@ class Server():
 			emailfile.close()
 		conn.send("CreationIsGood")
 		self.waitForLogin()
+	
 	def onlineListFunc(self):
 		conn.send("Online:"+self.onlineList)
 
@@ -101,12 +105,12 @@ class Server():
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((IP,port))
 s.listen(5)
-
+#Server().createOnlineList()
 #This code is ran whenever a new client joins the server
 while True:
 	conn, addr = s.accept()
 	#initializses the online list where users names are stored
-	Server().createOnlineList()
+	
 	
 	#Thread that handles each client
 	_start_new_thread(Server().__init__,())
