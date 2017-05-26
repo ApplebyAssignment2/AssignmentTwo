@@ -10,6 +10,7 @@ class Server():
 	def __init__(self): 
 		print("Trying to Connect...")
 		print("Connection has been made.")
+		self.createOnlineList()
 		self.waitForLogin()
 
 	def createOnlineList(self):
@@ -17,6 +18,7 @@ class Server():
 
 	def waitForLogin(self):
 		self.loginstuff = conn.recv(buffer).decode('utf-8')
+		print(conn)
 		if self.loginstuff[0] == "#":
 			self.createNewLogin()
 		else:
@@ -34,6 +36,8 @@ class Server():
 			for line in openfile:
 				if self.tocheck in line:
 					conn.send("LoginIsGood".encode('utf-8'))
+					self.onlineList.append([self.username,addr])
+					self.waitForMessages(conn,addr,buffer)
 				else:
 					conn.send("LoginIsBad".encode('utf-8'))
 					self.waitForLogin()
@@ -59,10 +63,6 @@ class Server():
 	def onlineListFunc(self):
 		conn.send("Online:"+self.onlineList)
 
-	def messageHandling(self):
-		while True:
-			self.data = conn.recv(buffer).decode('utf-8')
-			print(self.data)
 
 	def waitForMessages(self,conn, addr, Buffer):
 		data = None
@@ -71,12 +71,12 @@ class Server():
 			self.data = s.recv(Buffer)
 			# Decodes the encrypted data
 			self.message = data.decode('utf-8')
-			sendToUserIP = findIP(self.message)
+			sendToUserIP = self.findIP(self.message)
 			conn.send(sendToUserIP.encode('utf-8'))
 
 	def findIP(self,username):
-		for i in range(0, len(usersList), 1):
-			check = usersList[i]
+		for i in range(0, len(self.onlineList), 1):
+			check = self.onlineList[i]
 			usernameToCheck = check[0]
 			if usernameToCheck == username:
 				return check[1]
