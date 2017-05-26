@@ -1,18 +1,33 @@
+"""This File is the Server file of the chat program
+	It is designed to run on a server separate from the clients on its own machine
+	It handles things such as:
+	1. Logins and Account Creation
+	2. Message handling
+	3. connecting to other users
+	4. Contains online user list
+"""
+#Import statments 
+import socket #Socket is the module used for networking
+from threading import _start_new_thread #threading is used to run two processes at once
 
-import socket
-from threading import _start_new_thread
-IP = "10.10.19.21"
-port = 30000
-buffer = 1024
-applicationName = "Project Mercury"
-	
+#Setup variables
+IP = "192.168.92.203" #The Ip of the server
+port = 30000 #Port the server is running on 
+buffer = 1024 
+applicationName = "Project Mercury" #Name of program incase GUI is added for server management
+
+
+#Main server class where all functions are handled 	
 class Server():
+
+	#Init function
 	def __init__(self): 
 		print("Trying to Connect...")
 		print("Connection has been made.")
 		self.createOnlineList()
 		self.waitForLogin()
 
+	
 	def createOnlineList(self):
 		self.onlineList = []
 
@@ -37,7 +52,7 @@ class Server():
 				if self.tocheck in line:
 					conn.send("LoginIsGood".encode('utf-8'))
 					self.onlineList.append([self.username,addr])
-					self.waitForMessages(conn,addr,buffer)
+					self.waitForMessages()
 				else:
 					conn.send("LoginIsBad".encode('utf-8'))
 					self.waitForLogin()
@@ -64,13 +79,13 @@ class Server():
 		conn.send("Online:"+self.onlineList)
 
 
-	def waitForMessages(self,conn, addr, Buffer):
+	def waitForMessages(self):
 		data = None
 
 		while True:
-			self.data = s.recv(Buffer)
+			self.data = conn.recv(buffer)
 			# Decodes the encrypted data
-			self.message = data.decode('utf-8')
+			self.message = self.data.decode('utf-8')
 			sendToUserIP = self.findIP(self.message)
 			conn.send(sendToUserIP.encode('utf-8'))
 
@@ -82,11 +97,16 @@ class Server():
 				return check[1]
 
 
+#Code that setups server and begins waiting for users to connect
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((IP,port))
 s.listen(5)
 
+#This code is ran whenever a new client joins the server
 while True:
 	conn, addr = s.accept()
+	#initializses the online list where users names are stored
 	Server().createOnlineList()
+	
+	#Thread that handles each client
 	_start_new_thread(Server().__init__,())
