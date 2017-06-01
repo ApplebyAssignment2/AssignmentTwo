@@ -422,7 +422,7 @@ class Client(Frame):
         self.GUI()
 
     def p2pconnect(self, user):
-        self.server.send(user.encode('utf-8'))
+        self.server.send(user)
         connectionIP=self.recv(buffer)
         connectionIP=connectionIP.decode('utf-8')
         self.chatWindow(connectionIP,user)
