@@ -25,7 +25,6 @@ class Client(Frame):
 
             self.connect()
             _start_new_thread(self.TestGet, ())
-            _start_new_thread(self.waitForP2P())
             self.loginScreen()
             print('Waiting for server...')
             #Error window if cannot connect to server
@@ -267,13 +266,39 @@ class Client(Frame):
          print("Thread has started")
          while 1:
             #print("Running")
-            self.data = self.server.recv(buffer).decode('utf-8')
+            self.data = self.server.recv(buffer)
+            self.data=self.data.decode('utf-8')
+            print(self.data)
             #print("Got it")
             if self.data != '':
-                if self.data == "LoginIsGood":
-                    self.GUI()
+                message=self.data
+                if len(message)>5:
+                    print(message[0:2])
+                    if message[0:2]=="On":
+                        print('hi')
+                        userlist=[]
+                        start=0
+                        for i in range(0,len(message),1):
+                            if message[i]==':':
+                                start=i
+
+                            if message[i]==',':
+                                start+=1
+                                userlist.append(message[start:i])
+                                start=i
+
+                        try:
+                            self.screenA.destroy()
+                            self.GUI.destroy()
+                        except:
+                            print('no window')
+
+                        self.GUI(userlist)
+                        _start_new_thread(self.waitForP2P())
+
                 if self.data == "LoginIsBad":
                     self.loginScreen()
+                    self.screenB.destroy()
                 if self.data == "CreationIsGood":
                     self.login()
             
@@ -281,7 +306,7 @@ class Client(Frame):
                 print(self.data.decode('utf-8'))
 
 
-    def chatWindow(self,IP,user):
+    def chatWindow(self,conn,IP,user):
 
         self.Window = Tk()
 
@@ -314,8 +339,6 @@ class Client(Frame):
 
         self.Window.mainloop()
 
-        if IP!=None:
-            self.p2pConnect(IP,p2pPort)
         _start_new_thread(self.insertRecievedMessages, (buffer, user))
 
     def p2pConnect(self,IP,p2pPort):
@@ -350,21 +373,22 @@ class Client(Frame):
         self.EntryBox.config(state=NORMAL)
         self.ClickAction()
 
-    def GUI(self):
+    def GUI(self,userlist):
+        print("GUI")
         self.app = Tk()
-        self.__init__2()
+        self.__init__2(userlist)
         self.app.mainloop()
         
             
-    def __init__2(self):
+    def __init__2(self,userlist):
         #self.server.send("Hi".encode('utf-8'))
         # creating the window and setting its characteristics
         # Initialise the frame
         self.app.grid()
 
-        self.createWidgets()
+        self.createWidgets(userlist)
 
-    def createWidgets(self):
+    def createWidgets(self,userlist):
         # creating a list of people who the client can connect to and letting them pick which one they want to connect to
         self.header = Label(self.app, bd=0, bg="white", height="1", width="37", font="Arial",
                                 text='Connect To A User:')
@@ -373,7 +397,6 @@ class Client(Frame):
         self.user1 = Label(self.app, bd=0, font="Arial", text="hey")
         self.user1.grid(row=1, column=1, sticky=W)
 
-        userlist = ['james', 'richard']
         userLabelList = []
         userButtonList = []
 
@@ -411,18 +434,10 @@ class Client(Frame):
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.bind((socket.gethostname(), p2pPort))
             s.listen(5)
-            self.chatWindow(None)
-            loop=False
-
-
+            conn,addr=s.accept()
+            self.chatWindow(conn,addr,user)
 
 
 Client().__init__()
 
-"""
 
-
-
-#_thread.start_new_thread(Client, args)
-
-"""
