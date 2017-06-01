@@ -15,6 +15,7 @@ host = '10.10.0.38'
 port = 30000
 buffer = 1024
 p2pPort=30001
+user="Zayd"
 #The main Client class
 class Client(Frame):
     #Init function, ran on start up
