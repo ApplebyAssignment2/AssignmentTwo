@@ -14,6 +14,7 @@ host = '192.168.92.203'
 
 port = 30000
 buffer = 1024
+p2pPort=30001
 #The main Client class
 class Client(Frame):
     #Init function, ran on start up
@@ -23,6 +24,7 @@ class Client(Frame):
 
             self.connect()
             _start_new_thread(self.TestGet, ())
+            _start_new_thread(self.waitForP2P())
             self.loginScreen()
             print('Waiting for server...')
             #Error window if cannot connect to server
@@ -278,8 +280,8 @@ class Client(Frame):
                 print(self.data.decode('utf-8'))
 
 
-    def chatWindow(self):
-       # self.saveInfor()
+    def chatWindow(self,IP):
+
         self.Window = Tk()
 
         self.Window.geometry("400x500")
@@ -311,6 +313,13 @@ class Client(Frame):
 
         self.Window.mainloop()
 
+        if IP!=None:
+            self.p2pConnect(IP,p2pPort)
+
+    def p2pConnect(self,IP,p2pPort):
+        self.p2p = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.p2p.connect((IP, p2pPort))
+
     def ClickAction(self):
         self.toPlace = self.EntryBox.get('1.0',END)
         # print(self.toPlace)
@@ -319,8 +328,7 @@ class Client(Frame):
         self.ChatLog.config(state=DISABLED)
         self.ChatLog.yview(END)
         self.EntryBox.delete("0.0", END)
-
-        self.server.send(self.EntryBox.encode('utf-8'))
+        self.p2p.send(self.EntryBox.encode('utf-8'))
     
 
     def DisableEntry(self,string):
@@ -354,7 +362,7 @@ class Client(Frame):
         self.user1 = Label(self.app, bd=0, font="Arial", text="hey")
         self.user1.grid(row=1, column=1, sticky=W)
 
-        userlist = ['james', 'richard']
+        123567userlist = ['james', 'richard']
         userLabelList = []
         userButtonList = []
 
@@ -362,11 +370,9 @@ class Client(Frame):
             userLabelList.append(Label(self.app, bd=0, font="Arial", text=userlist[i]))
             userLabelList[i].grid(row=i + 1, column=1, sticky=W)
 
-            var = (Button(self.app, text="Connect", command=lambda: self.buttonCallBack()))
+            var = (Button(self.app, text="Connect", command=lambda row=i: self.connect(i)))
             userButtonList.append(var)
             userButtonList[i].grid(row=i + 1, column=4, columnspan=1, sticky=W)
-
-            # command=lambda:self.connect()
 
 
 
@@ -381,31 +387,19 @@ class Client(Frame):
         self.app.destroy()
         self.GUI()
 
-    def buttonCallBack(self, event):
-        print("hello")
-        mybutton = event.widget
-        text_at_row_col = mybutton["text"]
-
-        print(text_at_row_col)
-
-    #def connect(self, user):
-        """
-        s.send(user.encode('utf-8'))
-        connectionIP= s.recv(Buffer)
+    def connect(self, user):
+        self.server.send(user.encode('utf-8'))
+        connectionIP=self.recv(buffer)
         connectionIP=connectionIP.decode('utf-8')
 
-            
-        z=socket.socket()
-        z.connect((host,port))
+        self.chatWindow(connectionIP)
 
-        @(#$%^&%$##$%^&
-        function to open the chat window
-        """
-
-        # open the chat window
-     #   print(user)
-       # app.destroy()
-
+    def waitForP2P(self):
+        while True:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.bind((socket.gethostname(), p2pPort))
+            s.listen(5)
+            self.chatWindow(None)
 
 
 Client().__init__()
