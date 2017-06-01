@@ -280,7 +280,7 @@ class Client(Frame):
                 print(self.data.decode('utf-8'))
 
 
-    def chatWindow(self,IP):
+    def chatWindow(self,IP,user):
 
         self.Window = Tk()
 
@@ -315,10 +315,20 @@ class Client(Frame):
 
         if IP!=None:
             self.p2pConnect(IP,p2pPort)
+        _start_new_thread(self.insertRecievedMessages, (buffer, user))
 
     def p2pConnect(self,IP,p2pPort):
         self.p2p = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.p2p.connect((IP, p2pPort))
+
+    def insertRecievedMessages(self,buffer,user):
+        self.data=self.p2p.recv(buffer)
+        self.message = self.data.decode('utf-8')
+        self.ChatLog.config(state=NORMAL)
+        self.ChatLog.insert(END,"\n"+user+": "+self.message)
+        self.ChatLog.config(state=DISABLED)
+        self.ChatLog.yview(END)
+
 
     def ClickAction(self):
         self.toPlace = self.EntryBox.get('1.0',END)
@@ -362,7 +372,7 @@ class Client(Frame):
         self.user1 = Label(self.app, bd=0, font="Arial", text="hey")
         self.user1.grid(row=1, column=1, sticky=W)
 
-        123567userlist = ['james', 'richard']
+        userlist = ['james', 'richard']
         userLabelList = []
         userButtonList = []
 
@@ -391,15 +401,19 @@ class Client(Frame):
         self.server.send(user.encode('utf-8'))
         connectionIP=self.recv(buffer)
         connectionIP=connectionIP.decode('utf-8')
+        self.chatWindow(connectionIP,user)
 
-        self.chatWindow(connectionIP)
 
     def waitForP2P(self):
-        while True:
+        loop=True
+        while loop:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.bind((socket.gethostname(), p2pPort))
             s.listen(5)
             self.chatWindow(None)
+            loop=False
+
+
 
 
 Client().__init__()
