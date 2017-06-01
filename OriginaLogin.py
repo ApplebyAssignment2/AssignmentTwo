@@ -10,7 +10,7 @@ import os
 programName = "Project Mercury"
 
 #Target location of connection
-host = '192.168.92.203'
+host = '10.10.0.38'
 
 port = 30000
 buffer = 1024
@@ -380,7 +380,7 @@ class Client(Frame):
             userLabelList.append(Label(self.app, bd=0, font="Arial", text=userlist[i]))
             userLabelList[i].grid(row=i + 1, column=1, sticky=W)
 
-            var = (Button(self.app, text="Connect", command=lambda row=i: self.connect(i)))
+            var = (Button(self.app, text="Connect", command=lambda row=i: self.p2pconnect(i)))
             userButtonList.append(var)
             userButtonList[i].grid(row=i + 1, column=4, columnspan=1, sticky=W)
 
@@ -397,7 +397,7 @@ class Client(Frame):
         self.app.destroy()
         self.GUI()
 
-    def connect(self, user):
+    def p2pconnect(self, user):
         self.server.send(user.encode('utf-8'))
         connectionIP=self.recv(buffer)
         connectionIP=connectionIP.decode('utf-8')
