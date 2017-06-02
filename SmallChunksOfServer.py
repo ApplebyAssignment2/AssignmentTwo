@@ -20,18 +20,24 @@ list_sock = []
 #Main server class where all functions are handled 	
 class Server():
 
-	#Init function
-	def __init__(self): 
+	#Init Function
+	#The contents of this function gets executed first
+	def __init__(self):
+		#printing the status of the connection for debugging purposeds
 		print("Trying to Connect...")
 		print("Connection has been made.")
+		#calling the function that will create a list of users who are online at the moment
 		self.createOnlineList()
+		#calling the function that will wait for the client to send the login credidentials
 		self.waitForLogin()
 
 	
 	def createOnlineList(self):
+		#creates an empty list that we will fill in later
 		self.onlineList = []
 
 	def waitForLogin(self):
+		#decoding the tuple sent by the client into a string that the program can actually interpret
 		self.loginstuff = conn.recv(buffer).decode('utf-8')
 		print(conn)
 		if self.loginstuff[0] == "#":
