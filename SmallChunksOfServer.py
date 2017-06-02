@@ -23,6 +23,9 @@ class Server():
 	#Init Function
 	#The contents of this function gets executed first
 	def __init__(self):
+		_start_new_thread(Server().__init__,())
+		self.conn = conn
+		self.addr = addr
 		#printing the status of the connection for debugging purposeds
 		print("Trying to Connect...")
 		print("Connection has been made.")
@@ -38,8 +41,8 @@ class Server():
 
 	def waitForLogin(self):
 		#decoding the tuple sent by the client into a string that the program can actually interpret
-		self.loginstuff = conn.recv(buffer).decode('utf-8')
-		print(conn)
+		self.loginstuff = self.conn.recv(buffer).decode('utf-8')
+
 
 		#if the first character in the string is a hashtag sign, then it means that the client is creating a new account
 		if self.loginstuff[0] == "#":
@@ -83,14 +86,14 @@ class Server():
 				for i in range(0,len(self.onlineList),1):
 					self.toSend = self.onlineList[i]
 					self.userList +=self.toSend[i]+","
-				conn.send(("Online:"+self.userList).encode('utf-8'))
+				self.conn.send(("Online:"+self.userList).encode('utf-8'))
 				#waiting for messages from the client about future commands
 				self.waitForMessages()
 
 		#if the username and password did not match any of those in the database, then the server returns an error message
 		#to the client
 		if not self.status:
-			conn.send("LoginIsBad".encode('utf-8'))
+			self.conn.send("LoginIsBad".encode('utf-8'))
 			#goes back to waiting for the login details to be sent
 			self.waitForLogin()
 
@@ -119,11 +122,11 @@ class Server():
 			emailfile.close()
 
 		#sending the client a message notifying them that the account creation was successful
-		conn.send("CreationIsGood".encode('utf-8'))
+		self.conn.send("CreationIsGood".encode('utf-8'))
 		self.waitForLogin()
 	
 	def onlineListFunc(self):
-		conn.send("Online:"+self.onlineList)
+		self.conn.send("Online:"+self.onlineList)
 
 
 	def waitForMessages(self):
@@ -136,7 +139,7 @@ class Server():
 			#finding the users IP using the findIP() function
 			sendToUserIP = self.findIP(self.message)
 			#sending back the IP of the user to the client
-			conn.send(sendToUserIP.encode('utf-8'))
+			self.conn.send(sendToUserIP.encode('utf-8'))
 
 	# a function that will take the name of user and return the users IP
 	def findIP(self,username):
@@ -148,20 +151,21 @@ class Server():
 
 
 #Code that setups server and begins waiting for users to connect
-for i in range(tot_socket):
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
 	s.bind((IP,port))
 	s.listen(10)
-	list_sock.append(s)
+
 #Server().createOnlineList()
 
 #Server().createOnlineList()
 #This code is ran whenever a new client joins the server
 while True:
-	for i in range(0,len(list_sock),1):
 
-		conn, addr = list_sock[i].accept()
+	conn, addr = s.accept()
+	server  = Server().__init__()
+	server.start()
+
 
 	#Thread that handles each client
-		_start_new_thread(Server().__init__,())
+		
