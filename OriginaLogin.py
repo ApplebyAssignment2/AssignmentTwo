@@ -10,10 +10,10 @@ import os
 programName = "Project Mercury"
 
 #Target location of connection
-host = '10.10.0.38'
+host = '10.0.1.12'
 
 port = 30000
-buffer = 1024
+buffer = 8192
 p2pPort=30001
 user="Zayd"
 #The main Client class
@@ -163,6 +163,7 @@ class Client(Frame):
         exit()
 
     def getCreation(self):
+        self.screenC.destroy()
         username = self.usernameCreationEntry.get()
         password = self.passwordCreationEntry.get()
         email = self.email.get()
@@ -222,9 +223,10 @@ class Client(Frame):
 
 
     def sendinfo(self):
-        self.screenB.destroy()
+        
         self.username = "@"+self.usernameEntry.get()
         self.password = "$"+self.passwordEntry.get()
+        self.screenB.destroy()
         print(self.password)
         print(self.username)
         self.tosend = self.username + self.password
