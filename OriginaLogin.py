@@ -62,7 +62,7 @@ class Client(Frame):
 
 
             #Yes and No buttons
-            self.loginOption = Button(self.screenA,text = "Yes", command = self.login)
+            self.loginOption = Button(self.screenA,text = "Yes", command = self.loginDe)
             self.loginOption.pack(side = BOTTOM, pady = 3)
 
             self.newOption = Button(self.screenA,text = "No",command = self.newAccount)
@@ -75,12 +75,15 @@ class Client(Frame):
         else:
             self.useLoginInfo()
 
+    def loginDe(self):
+        self.screenA.destroy()
+        self.login()
 
     def login(self):
 
         #Creates the login screen for usernames and password input
         self.screenB = Tk()
-        self.screenA.destroy()
+        
 
         #Usual setup variables
         self.screenB.geometry("250x200")
@@ -219,6 +222,7 @@ class Client(Frame):
 
 
     def sendinfo(self):
+        self.screenB.destroy()
         self.username = "@"+self.usernameEntry.get()
         self.password = "$"+self.passwordEntry.get()
         print(self.password)
@@ -376,6 +380,7 @@ class Client(Frame):
     def GUI(self,userlist):
         print("GUI")
         self.app = Tk()
+        self.screenB.destroy()
         self.__init__2(userlist)
         self.app.mainloop()
         

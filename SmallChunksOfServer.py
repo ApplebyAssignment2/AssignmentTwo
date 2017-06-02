@@ -11,7 +11,7 @@ import socket #Socket is the module used for networking
 from threading import _start_new_thread #threading is used to run two processes at once
 
 #Setup variables
-IP = "10.10.19.143" #The Ip of the server
+IP = "10.0.1.12" #The Ip of the server
 port = 30000 #Port the server is running on 
 buffer = 1024 
 applicationName = "Project Mercury" #Name of program incase GUI is added for server management
@@ -47,18 +47,24 @@ class Server():
 		self.username = self.loginstuff[1:self.atpoint]
 		self.password = self.loginstuff[self.atpoint+1:]
 		self.tocheck = self.username+self.password
-		with open("accounts.txt","r") as openfile:
-			for line in openfile:
-				if self.tocheck in line:
-					conn.send("LoginIsGood".encode('utf-8'))
-					self.onlineList.append([self.username,addr])
-					#for i in range(0,len(self.onlineList),1):
-					#	self.toSend = self.onlineList[i]
-					#	conn.send(self.toSend[1].encode('utf-8'))
-					self.waitForMessages()
-				else:
-					conn.send("LoginIsBad".encode('utf-8'))
-					self.waitForLogin()
+		
+		accountsFile = open("accounts.txt","r")
+		accountsFileRead = accountsFile.readlines()
+		accountsFile.close()
+		self.status = False
+		for line in accountsFileRead:
+			if self.tocheck in line:
+				self.status = True	
+				self.onlineList.append([self.username,addr])
+				self.userList = ""
+				for i in range(0,len(self.onlineList),1):
+					self.toSend = self.onlineList[i]
+					self.userList +=self.toSend[i]+","
+				conn.send(("Online:"+self.userList).encode('utf-8'))
+				self.waitForMessages()
+		if not self.status:
+			conn.send("LoginIsBad".encode('utf-8'))
+			self.waitForLogin()
 
 
 	def createNewLogin(self):
