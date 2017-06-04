@@ -23,7 +23,6 @@ class Server():
 	#Init Function
 	#The contents of this function gets executed first
 	def __init__(self):
-		_start_new_thread(Server().__init__,())
 		self.conn = conn
 		self.addr = addr
 		#printing the status of the connection for debugging purposeds
@@ -151,10 +150,10 @@ class Server():
 
 
 #Code that setups server and begins waiting for users to connect
-	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
-	s.bind((IP,port))
-	s.listen(10)
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+s.bind((IP,port))
+s.listen(10)
 
 #Server().createOnlineList()
 
@@ -164,7 +163,7 @@ while True:
 
 	conn, addr = s.accept()
 	server  = Server().__init__()
-	server.start()
+
 
 
 	#Thread that handles each client
