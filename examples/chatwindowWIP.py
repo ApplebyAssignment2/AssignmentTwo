@@ -1,86 +1,58 @@
 from tkinter import *
 
-def GUI():
-    class Gui(Frame):
-        def __init__(self):
-            #creating the window and setting its characteristics
-            # Initialise the frame
-            Frame.__init__(self)
-            self.grid()
 
+class Window():
+    def GUI(self, userlist):
+        print("GUI")
+        self.app = Tk()
+        self.__init__2(userlist)
+        self.app.mainloop()
 
-            self.createWidgets()
+    def __init__2(self, userlist):
+        # self.server.send("Hi".encode('utf-8'))
+        # creating the window and setting its characteristics
+        # Initialise the frame
+        self.app.grid()
 
-        def createWidgets(self):
+        self.createWidgets(userlist)
 
-            #creating a list of people who the client can connect to and letting them pick which one they want to connect to
-            self.header = Label(self, bd=0, bg="white", height="1", width="37", font="Arial",text='Connect To A User:')
-            self.header.grid(row=0,column=0,columnspan=5)
+    def createWidgets(self, userlist):
+        # creating a list of people who the client can connect to and letting them pick which one they want to connect to
+        self.header = Label(self.app, bd=0, bg="white", height="1", width="37", font="Arial",
+                            text='Connect To A User:')
+        self.header.grid(row=0, column=0, columnspan=5)
 
+        #creating a list that will hold the buttons and the labels that we create. This way, our program does not have to assign
+        #names to them when we go to grid them
+        userLabelList = []
+        userButtonList = []
 
+        #a for loop that goes through the amount of users there are and makes a label and button for each one of them
+        for i in range(0, len(userlist), 1):
+            userLabelList.append(Label(self.app, bd=0, font="Arial", text=userlist[i]))
+            userLabelList[i].grid(row=i + 1, column=1, sticky=W)
 
-            self.user1=Label(self, bd=0,font="Arial",text="hey")
-            self.user1.grid(row=1, column=1, sticky= W)
+            #when the button is clicked, it returns the position of the button in the list of buttons. The program uses
+            #this to find out which user the "connect" button was linked to and tries to connect with them.
 
-            userlist=['james','richard']
-            userLabelList=[]
-            userButtonList=[]
+            var = (Button(self.app, text="Connect", command=lambda row=i:self.chatWindow()))
+            userButtonList.append(var)
+            userButtonList[i].grid(row=i + 1, column=4, columnspan=1, sticky=W)
 
-            for i in range(0, len(userlist),1):
-                userLabelList.append(Label(self, bd=0,font="Arial",text=userlist[i]))
-                userLabelList[i].grid(row=i+1,column=1, sticky= W)
+        # a refresh button that when called, closes the window and opens it again with a refreshed list of users
+        self.refreshButton = Button(self.app, text='Refresh', command=self.refresh)
+        self.refreshButton.grid(row=12, column=2, columnspan=4, sticky=W)
 
-                var = (Button(self, text="Connect", command=lambda: self.buttonCallBack()))
-                userButtonList.append(var)
-                userButtonList[i].grid(row=i+1, column=4, columnspan=1, sticky=W)
+        # looping the window so that it will continue to stay open
+        # self.text1.delete(1.0, END)
 
-            #command=lambda:self.connect()
+    def refresh(self):
+        print('Refreshed')
+        self.app.destroy()
+        self.GUI()
 
-
-
-            self.refreshButton=Button(self, text='Refresh', command=self.refresh)
-            self.refreshButton.grid(row=12, column=2, columnspan=4, sticky=W)
-
-            # looping the window so that it will continue to stay open
-            #self.text1.delete(1.0, END)
-
-        def refresh(self):
-            print('Refreshed')
-            app.destroy()
-            GUI()
-
-        def buttonCallBack(self,event):
-            print("hello")
-            mybutton = event.widget
-            text_at_row_col = mybutton["text"]
-
-            print(text_at_row_col)
-
-        def connect(self,user):
-            """
-            s.send(user.encode('utf-8'))
-            connectionIP= s.recv(Buffer)
-            connectionIP=connectionIP.decode('utf-8')
-
-
-            z=socket.socket()
-            z.connect((host,port))
-
-            @(#$%^&%$##$%^&
-            function to open the chat window
-            """
-
-            #open the chat window
-            print(user)
-            app.destroy()
-
-
-    app=Gui()
-    app.mainloop()
-
-
-class Client():
     def chatWindow(self):
+        print('Chat window')
         self.Window = Tk()
 
         self.Window.geometry("400x500")
@@ -121,18 +93,16 @@ class Client():
         self.ChatLog.yview(END)
         self.EntryBox.delete("0.0", END)
 
-#        self.server.send(self.EntryText.encode('utf-8'))
-    
+    #        self.server.send(self.EntryText.encode('utf-8'))
+
 
     def DisableEntry(self,string):
         self.EntryBox.config(state=DISABLED)
-    
+
 
     def PressAction(self,string):
         self.EntryBox.config(state=NORMAL)
         self.ClickAction()
 
-        
-
-
-Client().chatWindow()
+userlist=['riaz','Mr.Hsu','Matt']
+Window().GUI(userlist)
