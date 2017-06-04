@@ -43,8 +43,7 @@ class Window():
         self.refreshButton = Button(self.app, text='Refresh', command=self.refresh)
         self.refreshButton.grid(row=12, column=2, columnspan=4, sticky=W)
 
-        # looping the window so that it will continue to stay open
-        # self.text1.delete(1.0, END)
+
 
     def refresh(self):
         print('Refreshed')
