@@ -84,7 +84,7 @@ class Server():
                 conn.send(("Online:" + self.userList).encode('utf-8'))
                 #conn.send("Conneceted and Logged in...".encode('utf-8'))
         if self.status == False:
-            self.conn.send("LoginIsBad".encode('utf-8'))
+            conn.send("LoginIsBad".encode('utf-8'))
             # goes back to waiting for the login details to be sent
             self.waitForLogin()
 
@@ -112,7 +112,7 @@ class Server():
             emailfile.close()
 
         # sending the client a message notifying them that the account creation was successful
-        self.conn.send("CreationIsGood".encode('utf-8'))
+        conn.send("CreationIsGood".encode('utf-8'))
         self.waitForLogin()
 
 #Creates the socket

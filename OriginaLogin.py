@@ -3,7 +3,6 @@
 from tkinter import * #Tkinter for GUI
 import socket #Sockets used for networking aspect of assignment
 import time
-import base64
 from threading import _start_new_thread
 import os
 # Setup Variables
@@ -15,7 +14,6 @@ host = '10.0.1.12'
 port = 30000
 buffer = 8192
 p2pPort=30001
-user="Zayd"
 #The main Client class
 class Client(Frame):
     #Init function, ran on start up
@@ -227,11 +225,9 @@ class Client(Frame):
         self.username = "@"+self.usernameEntry.get()
         self.password = "$"+self.passwordEntry.get()
         self.screenB.destroy()
-        print(self.password)
-        print(self.username)
         self.tosend = self.username + self.password
         print(self.tosend)
-        self.server.send(self.tosend.encode())
+        self.server.send(self.tosend.encode('utf-8'))
 
 
     def saveInfor(self):
