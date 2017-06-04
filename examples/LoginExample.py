@@ -231,18 +231,22 @@ class Client(Frame):
     def TestGet(self):
              print("Thread has started")
              while 1:
-                #print("Running")
+                #Gets data from the server
                 self.data = self.server.recv(buffer)
                 self.data=self.data.decode('utf-8')
-                print(self.data)
-                #print("Got it")
+
+                #Makes sure there is something  in the data
                 if self.data != '':
                     message=self.data
+
+                    #Process to detect the online users
                     if len(message)>5:
                         if message[0:2]=="On":
-                            print('hi')
+
                             userlist=[]
                             start=0
+
+                           #Splits online users from what was sent from the server and adds it to a list
                             for i in range(0,len(message),1):
                                 if message[i]==':':
                                     start=i
@@ -251,38 +255,52 @@ class Client(Frame):
                                     start+=1
                                     userlist.append(message[start:i])
                                     start=i
+
+                            #Calls the Online List GUI
                             self.GUI(userlist)
                             try:
                                 self.screenA.destroy()
                             except:
                                 print('no window')
 
-
-
+                    #If server tells client that login did not work
                     if self.data == "LoginIsBad":
+
+                        #Brings user back to login screen
                         self.loginScreen()
                         self.screenB.destroy()
+                    #If user account creation was good, brings them to login screen
                     if self.data == "CreationIsGood":
                         self.login()
 
 
+    #Outlines of the online list GUI
     def GUI(self, userlist):
+
+        #Creates window
         self.app = Tk()
+        #Calls this fucntion the create rest of window
         self.__init__2(userlist)
+
+        #Mainloop
         self.app.mainloop()
 
 
     def __init__2(self, userlist):
-        # self.server.send("Hi".encode('utf-8'))
+
         # creating the window and setting its characteristics
         # Initialise the frame
+
         self.app.grid()
         self.app.title(programName)
+        #Calls createWidgets to add the online users to the screen
         self.createWidgets(userlist)
 
 
     def createWidgets(self, userlist):
         # creating a list of people who the client can connect to and letting them pick which one they want to connect to
+
+        #Headers
         self.header = Label(self.app, bd=0, bg="white", height="1", width="37", font="Arial",
                             text='Connect To A User:')
         self.header.grid(row=0, column=0, columnspan=5)
@@ -290,13 +308,19 @@ class Client(Frame):
         self.user1 = Label(self.app, bd=0, font="Arial", text="hey")
         self.user1.grid(row=1, column=1, sticky=W)
 
+
+        #Empty List
         userLabelList = []
         userButtonList = []
 
+
+        #Goes through the user list and depending on the amount of users creates the amount of rows required to store them
+        #all on one screen
         for i in range(0, len(userlist), 1):
             userLabelList.append(Label(self.app, bd=0, font="Arial", text=userlist[i]))
             userLabelList[i].grid(row=i + 1, column=1, sticky=W)
 
+            #For the example, connect button is broken
             var = (Button(self.app, text="Connect", command=lambda row=i: self.p2pconnect(i)))
             userButtonList.append(var)
             userButtonList[i].grid(row=i + 1, column=4, columnspan=1, sticky=W)
@@ -304,10 +328,9 @@ class Client(Frame):
         self.refreshButton = Button(self.app, text='Refresh', command=self.refresh)
         self.refreshButton.grid(row=12, column=2, columnspan=4, sticky=W)
 
-        # looping the window so that it will continue to stay open
-        # self.text1.delete(1.0, END)
 
 
+    #Refresh function that is supposed to get the list from the server to update online list, not working in example
     def refresh(self):
         print('Refreshed')
         self.app.destroy()

@@ -115,16 +115,20 @@ class Server():
         self.conn.send("CreationIsGood".encode('utf-8'))
         self.waitForLogin()
 
-
+#Creates the socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+#Changes some of the socket settings, that allow for multiple users on a server
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+#Binds the socket to the port and IP
 s.bind((IP, port))
+
+#Listens for connections
 s.listen(10)
 
-# Server().createOnlineList()
-
-# Server().createOnlineList()
-# This code is ran whenever a new client joins the server
-
+#When a connection is found conn, and addr is set as the accept
 conn, addr = s.accept()
+
+#Launches server
 server = Server().__init__()
